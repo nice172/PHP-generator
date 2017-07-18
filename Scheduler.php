@@ -1,6 +1,6 @@
 <?php
 
-class SCheduler{
+class Scheduler{
 
 	protected $maxTaskId = 0;
 	protected $taskMap = [];
@@ -39,3 +39,4 @@ class SCheduler{
     }
 
 }
+

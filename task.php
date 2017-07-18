@@ -9,7 +9,7 @@ class Task{
 
 
 	public function __construct($TaskId, Generator $coroutine){
-		$this->taskId = $taskId;
+		$this->taskId = $TaskId;
 		$this->coroutine = $coroutine;
 	}
 
@@ -33,6 +33,6 @@ class Task{
 	}
 
 	public function finished(){
-		return !this->coroutine->valid();
+		return !$this->coroutine->valid();
 	}
 }
