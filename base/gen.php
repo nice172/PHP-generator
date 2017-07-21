@@ -30,7 +30,7 @@
                 $this->isfirst = true;
                 return $this->generator->current();
             }else{
-                return $this->generator->send($value)
+                return $this->generator->send($value);
             }
         }
 
