@@ -1,6 +1,6 @@
 <?php
 
-final class AsyncTask{
+final class AsyncTask implements Async {
 
     public $gen;
     public $continuation;
