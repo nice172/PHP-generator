@@ -15,20 +15,33 @@ final class AsyncTask implements Async {
     }
 
     //传递迭代结果
-    public function next($result){
+    public function next($result = null, \Exception $e = null){
+        if ($e) {
+             $this->gen->throw_($e);
+        }
 
-        $value = $this->gen->send($result);
+        $e = null;
+        try {
+            // send方法内部是一个resume的过程: 
+            // 恢复execute_data上下文， 调用zend_execute_ex()继续执行,
+            // 后续中op_array内可能会抛出异常
+            $value = $this->gen->send($result);
+        } catch (\Exception $e) {};
 
-        if ($this->gen->valid()) {
-            if ($value instanceof \Generator){
-                $continuation = [$this, "next"];
-
-                (new self($value))->begin($continuation);
+       if ($e) {
+            if ($this->gen->valid()) {
+                // 传递异常
+                return $this->next(null, $e);
+            } else {
+                throw $e;
             }
-            $this->next($value);
-        }else{
-            $cc = $this->continuation;
-            $cc($result);
+        } else {
+            if ($this->gen->valid()) {
+                // 正常yield值
+                return $this->next($value);
+            } else {
+                return $result;
+            }
         }
     }
 }
