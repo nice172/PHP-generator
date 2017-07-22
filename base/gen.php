@@ -34,4 +34,10 @@
             }
         }
 
+         /*
+        *throw 异常处理
+        */
+         public function throw_(\Exception $e){
+            return $this->generator->throw($e);
+         }
    }
