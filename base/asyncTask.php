@@ -4,43 +4,51 @@ final class AsyncTask implements Async {
 
     public $gen;
     public $continuation;
+    public $parents;
 
-    public function __construct($gen){
+    public function __construct(\Generator $gen ,AsyncTask $parent = null){
         $this->gen = new Gen($gen);
+        $this->parent = $parent;
     }
 
-    // public function begin(callable $continuation){
-    //     $this->continuation = $continuation;
-    //     $this->next();
-    // }
+     public function begin(callable $continuation){
+         $this->continuation = $continuation;
+         $this->next();
+     }
 
     //传递迭代结果
-    public function next($result = null, \Exception $e = null){
-        if ($e) {
-             $this->gen->throw_($e);
-        }
-
-        $e = null;
-        try {
-            // send方法内部是一个resume的过程: 
-            // 恢复execute_data上下文， 调用zend_execute_ex()继续执行,
-            // 后续中op_array内可能会抛出异常
-            $value = $this->gen->send($result);
-        } catch (\Exception $e) {};
-
-       if ($e) {
-            if ($this->gen->valid()) {
-                // 传递异常
-                return $this->next(null, $e);
-            } else {
-                throw $e;
+    public function next($result = null,  $e = null){
+        try{
+            if ($e){
+                $value = $this->gen->throw_($e);
+            }else{
+                $value = $this->gen->send($result);
             }
-        } else {
+            if ($this->gen->valid()){
+                //Syscall 可能返回\Generator 或者 Async
+                if ($value instanceof Syscall){
+                    $value = $value($this);
+                }
+                if ($value instanceof \Generator){
+                    $value = new self($value, $this);
+                }
+                if ($value instanceof Async){
+                    $cc = [$this, "next"];
+                    $value->begin($cc);
+                }else {
+                    $this->next($value, null);
+                }
+            }else {
+                $cc = $this->continuation;
+                $cc($result, null);
+            }
+
+        }catch (\Exception $e){
             if ($this->gen->valid()) {
-                // 正常yield值
-                return $this->next($value);
+                $this->next(null, $e);
             } else {
-                return $result;
+                $cc = $this->continuation;
+                $cc($result, $e);
             }
         }
     }
