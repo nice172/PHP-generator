@@ -8,7 +8,7 @@ interface Async{
      *      continuation :: (mixed $result = null, \Exception|null $ex = null)
      * @return void 
      */
-    public function begin(callable $callback);
+    public function begin(callable $continuation);
 
 
 }

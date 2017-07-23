@@ -9,10 +9,10 @@ final class AsyncTask implements Async {
         $this->gen = new Gen($gen);
     }
 
-    public function begin(callable $continuation){
-        $this->continuation = $continuation;
-        $this->next();
-    }
+    // public function begin(callable $continuation){
+    //     $this->continuation = $continuation;
+    //     $this->next();
+    // }
 
     //传递迭代结果
     public function next($result = null, \Exception $e = null){
