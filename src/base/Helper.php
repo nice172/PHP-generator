@@ -8,7 +8,7 @@
 
 
 /**
- * timeout 超时处理
+ * timeout 超时处理，任一回调则任务完成
  */
 class Helper implements Async
 {
